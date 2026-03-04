@@ -1,0 +1,1540 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Sk Boost Mm</title>
+  <style>
+    :root{
+      --bg1:#4f6fe8; --bg2:#7c4bcf;
+      --card:#fff; --text:#222; --muted:#7a7a7a; --line:#e7e7e7;
+      --btn1:#5a78f0; --btn2:#6a3cc8;
+      --shadow:0 18px 40px rgba(0,0,0,.14);
+      --r16:16px; --r22:22px;
+      --ok:#1f8f3a; --bad:#b21e1e;
+
+      /* Topbar height for perfect centering */
+      --topbarH:72px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial,"Noto Sans","Myanmar Text",sans-serif;
+      background:linear-gradient(135deg,var(--bg1),var(--bg2));
+      color:var(--text);
+    }
+
+    /* ✅ Login/Signup always center under fixed topbar */
+    .center{
+      min-height: calc(100vh - var(--topbarH));
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: calc(28px + var(--topbarH)) 16px 28px;
+    }
+
+    .topbar{
+      position:fixed; left:0; right:0; top:0;
+      padding:14px 18px;
+      display:flex;align-items:center;justify-content:space-between;gap:12px;
+      background:rgba(255,255,255,.86);
+      backdrop-filter: blur(10px);
+      border-bottom:1px solid rgba(0,0,0,.06);
+      z-index:20;
+    }
+    .brand{font-weight:1000;font-size:26px;color:#5d7cf3}
+    .top-right{display:flex;align-items:center;gap:10px}
+    .circle{
+      width:42px;height:42px;border-radius:999px;display:grid;place-items:center;
+      background:linear-gradient(90deg,var(--btn1),var(--btn2));
+      color:#fff;font-weight:1000;box-shadow:0 10px 22px rgba(0,0,0,.12);user-select:none
+    }
+    .menuBtn{
+      border:0;border-radius:12px;padding:12px 14px;font-weight:1000;color:#fff;
+      background:linear-gradient(90deg,var(--btn1),var(--btn2));
+      cursor:pointer;box-shadow:0 10px 22px rgba(0,0,0,.12);
+      display:flex;align-items:center;gap:10px
+    }
+    .menuIcon{width:16px;height:2px;background:#fff;position:relative;display:inline-block}
+    .menuIcon::before,.menuIcon::after{content:"";width:16px;height:2px;background:#fff;position:absolute;left:0}
+    .menuIcon::before{top:-6px}.menuIcon::after{top:6px}
+
+    /* Cards / form */
+    .card{background:var(--card);border-radius:var(--r16);box-shadow:var(--shadow)}
+    .authCard{width:min(440px,92vw);padding:26px 22px 18px}
+    .authCard h1{margin:6px 0 14px;text-align:center;font-size:28px}
+
+    .form{display:flex;flex-direction:column;gap:14px}
+    .field{display:flex;flex-direction:column}
+    .label{font-weight:1000;font-size:13px;margin-bottom:6px}
+    .input{
+      width:100%;
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:13px 44px 13px 14px;
+      font-size:16px;outline:none;background:#fff
+    }
+    .input:focus{border-color:rgba(90,120,240,.8);box-shadow:0 0 0 4px rgba(90,120,240,.15)}
+    .password-wrap{position:relative}
+    .toggle{
+      position:absolute;right:10px;top:50%;transform:translateY(-50%);
+      border:0;background:transparent;color:#5673ea;font-weight:1000;cursor:pointer;padding:6px
+    }
+    .btn{
+      border:0;border-radius:14px;padding:14px 14px;font-size:18px;font-weight:1000;color:#fff;cursor:pointer;
+      background:linear-gradient(90deg,var(--btn1),var(--btn2));
+      box-shadow:0 10px 22px rgba(0,0,0,.12)
+    }
+    .btn.secondary{background:#efefef;color:#222;box-shadow:none}
+    .btn.danger{background:#d83a3a}
+    .row{display:flex;gap:10px;flex-wrap:wrap}
+    .row > *{flex:1}
+    .footer{margin-top:10px;text-align:center}
+    .small{font-size:14px;color:var(--muted)}
+    .link{color:#5673ea;font-weight:1000;text-decoration:none}
+    .link:hover{text-decoration:underline}
+    .copyright{margin-top:6px;color:#8a8a8a;font-size:14px}
+
+    /* Views */
+    .view{display:none}
+    .view.active{display:block}
+
+    /* Pages (after login) */
+    .page{
+      padding:86px 14px 90px; /* topbar space */
+    }
+    .container{max-width:560px;margin:0 auto}
+
+    .panelCard{
+      background:#fff;border-radius:22px;box-shadow:var(--shadow);
+      border:1px solid rgba(0,0,0,.06);overflow:hidden;margin-top:14px
+    }
+    .panelInner{padding:16px 14px 18px}
+    .h1Row{margin:4px 0 4px;font-weight:1000;font-size:34px;display:flex;align-items:center;gap:10px}
+    .subtitle{color:#3b3b3b;opacity:.65;font-weight:900;margin-top:-2px}
+    .sectionHdr{display:flex;align-items:center;gap:10px;font-weight:1000;color:#5673ea;font-size:20px;margin:6px 0 10px}
+    .hr{height:1px;background:rgba(0,0,0,.06);margin:10px 0}
+
+    .statGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .mini{
+      background:#fff;border-radius:18px;box-shadow:var(--shadow);
+      border:1px solid rgba(0,0,0,.06);padding:14px 14px;display:flex;gap:12px;align-items:center
+    }
+    .mini .ico{
+      width:46px;height:46px;border-radius:16px;background:linear-gradient(90deg,var(--btn1),var(--btn2));
+      display:grid;place-items:center;color:#fff;font-weight:1000;box-shadow:0 10px 20px rgba(0,0,0,.12)
+    }
+    .mini .t{font-weight:1000;color:#666;font-size:13px}
+    .mini .v{font-weight:1000;font-size:26px;margin-top:2px}
+    .muted{color:#777;font-weight:900}
+
+    .noteBox{
+      border-radius:14px;background:#fff6e6;border-left:6px solid #ff9800;
+      padding:12px 12px;color:#7a5b1a;font-weight:1000;margin:10px 0 14px;
+    }
+
+    .badge{
+      display:inline-block;padding:6px 10px;border-radius:999px;font-weight:1000;font-size:12px;
+      background:#f2f5ff;color:#4a63e6;border:1px solid rgba(90,120,240,.25);
+      white-space:nowrap
+    }
+    .badge.ok{background:#e9ffe9;color:#167c2d;border-color:#bdf0c6}
+    .badge.bad{background:#ffe9e9;color:#b51717;border-color:#f3bcbc}
+    .badge.warn{background:#fff6e6;color:#7a5b1a;border-color:#ffd9a6}
+
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:10px 8px;border-top:1px solid rgba(0,0,0,.06);vertical-align:top}
+    th{font-size:13px;text-align:left;color:#666;font-weight:1000}
+    td{font-weight:900;color:#333}
+
+    /* Drawer */
+    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.28);display:none;z-index:40}
+    .overlay.show{display:block}
+    .drawer{
+      position:fixed;top:72px;right:14px;width:min(360px,88vw);
+      background:#fff;border-radius:16px;box-shadow:var(--shadow);
+      overflow:hidden;display:none;z-index:50;border:1px solid rgba(0,0,0,.06)
+    }
+    .drawer.show{display:block}
+    .drawerTop{
+      background:linear-gradient(90deg,var(--btn1),var(--btn2));
+      color:#fff;padding:14px;font-weight:1000;display:flex;align-items:center;justify-content:space-between;gap:10px
+    }
+    .pillRole{
+      font-weight:1000;font-size:12px;border-radius:999px;padding:6px 10px;
+      background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.25)
+    }
+    .drawerItem{
+      display:flex;align-items:center;gap:12px;padding:14px;font-weight:1000;
+      color:#333;cursor:pointer;border-top:1px solid rgba(0,0,0,.06);user-select:none
+    }
+    .drawerItem:hover{background:#fafafa}
+    .drawerIcon{
+      width:34px;height:34px;border-radius:12px;background:#f0f3ff;border:1px solid rgba(90,120,240,.18);
+      display:grid;place-items:center;font-weight:1000;color:#4a63e6;flex:0 0 auto
+    }
+
+    /* Toast */
+    .toast{
+      position:fixed;left:50%;bottom:18px;transform:translateX(-50%);
+      background:rgba(0,0,0,.78);color:#fff;padding:10px 14px;border-radius:999px;
+      font-weight:1000;font-size:14px;opacity:0;pointer-events:none;transition:opacity .18s ease;z-index:99
+    }
+    .toast.show{opacity:1}
+
+    /* Bottom action */
+    .bottomAction{
+      position:fixed;left:0;right:0;bottom:0;padding:12px 14px 18px;
+      background:linear-gradient(180deg,rgba(0,0,0,0),rgba(0,0,0,.10));
+    }
+    .actionBtn{
+      width:min(560px,100%);margin:0 auto;border:0;border-radius:14px;
+      padding:16px 14px;font-weight:1000;letter-spacing:1px;text-transform:uppercase;
+      display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:var(--shadow);cursor:pointer;
+    }
+    .actionBtn.disabled{background:#9aa5a5;color:#f2f2f2;cursor:not-allowed}
+    .actionBtn.enabled{background:linear-gradient(90deg,var(--btn1),var(--btn2));color:#fff}
+  </style>
+</head>
+<body>
+
+<!-- Topbar -->
+<div class="topbar">
+  <div class="brand">Sk Boost Mm</div>
+  <div class="top-right">
+    <div class="circle" id="avatarCircle" style="display:none">U</div>
+    <button class="menuBtn" id="menuBtn" style="display:none">
+      <span class="menuIcon"></span><span>Menu</span>
+    </button>
+  </div>
+</div>
+
+<!-- Drawer -->
+<div class="overlay" id="overlay"></div>
+<div class="drawer" id="drawer">
+  <div class="drawerTop">
+    <div>💳 Balance: <span id="balanceText">0 Ks</span></div>
+    <span class="pillRole" id="rolePill">USER</span>
+  </div>
+
+  <div id="userMenu">
+    <div class="drawerItem" data-nav="user-home"><div class="drawerIcon">🏠</div> Panel</div>
+    <div class="drawerItem" data-nav="user-order"><div class="drawerIcon">🧾</div> New Order</div>
+    <div class="drawerItem" data-nav="user-history"><div class="drawerIcon">🕘</div> Order History</div>
+    <div class="drawerItem" data-nav="user-funds"><div class="drawerIcon">➕</div> Add Funds</div>
+  </div>
+
+  <div id="adminMenu" style="display:none">
+    <div class="drawerItem" data-nav="admin-dashboard"><div class="drawerIcon">🛡️</div> Admin Dashboard</div>
+    <div class="drawerItem" data-nav="admin-users"><div class="drawerIcon">👥</div> User List</div>
+    <div class="drawerItem" data-nav="admin-services"><div class="drawerIcon">🧩</div> Services</div>
+    <div class="drawerItem" data-nav="admin-orders"><div class="drawerIcon">🧾</div> Orders</div>
+    <div class="drawerItem" data-nav="admin-funds"><div class="drawerIcon">💰</div> Funds</div>
+  </div>
+
+  <div class="drawerItem" data-nav="logout"><div class="drawerIcon">↩️</div> Logout</div>
+</div>
+
+<!-- AUTH: LOGIN -->
+<main class="center view active" id="view-login">
+  <section class="card authCard">
+    <h1>Account Login</h1>
+
+    <form id="loginForm" class="form">
+      <div class="field">
+        <div class="label">Email</div>
+        <input class="input" name="email" type="email" placeholder="example@gmail.com" required/>
+        <div class="small" style="margin-top:6px">
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="label">Password</div>
+        <div class="password-wrap">
+          <input id="loginPass" class="input" name="password" type="password" placeholder="••••••••" required/>
+          <button id="loginToggle" class="toggle" type="button">Show</button>
+        </div>
+      </div>
+
+      <button class="btn" type="submit">Sign In</button>
+
+      <div class="footer">
+        <div class="small">Don't have an account? <a class="link" href="#" onclick="show('register');return false;">Sign Up</a></div>
+        <div class="copyright">© 2026 Application</div>
+      </div>
+    </form>
+  </section>
+</main>
+
+<!-- AUTH: REGISTER -->
+<main class="center view" id="view-register">
+  <section class="card authCard">
+    <h1>Create Account</h1>
+
+    <form id="registerForm" class="form">
+      <div class="field">
+        <div class="label">Full Name</div>
+        <input class="input" name="fullname" type="text" placeholder="Enter your full name" required/>
+      </div>
+
+      <div class="field">
+        <div class="label">Email</div>
+        <input class="input" name="email" type="email" placeholder="example@gmail.com" required/>
+      </div>
+
+      <div class="field">
+        <div class="label">Password (min. 6 characters)</div>
+        <div class="password-wrap">
+          <input id="regPass" class="input" name="password" type="password" placeholder="••••••••" required/>
+          <button id="regToggle1" class="toggle" type="button">Show</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="label">Confirm Password</div>
+        <div class="password-wrap">
+          <input id="regConfirm" class="input" name="confirm_password" type="password" placeholder="••••••••" required/>
+          <button id="regToggle2" class="toggle" type="button">Show</button>
+        </div>
+      </div>
+
+      <button class="btn" type="submit">Create Account</button>
+
+      <div class="footer">
+        <div class="small">Already have an account? <a class="link" href="#" onclick="show('login');return false;">Login</a></div>
+        <div class="copyright">© 2026 Application</div>
+      </div>
+    </form>
+  </section>
+</main>
+
+<!-- USER: HOME -->
+<main class="page view" id="view-user-home">
+  <div class="container">
+    <div class="panelCard">
+      <div class="panelInner">
+        <div class="h1Row">Sk Boost Mm</div>
+        <div class="subtitle">User Dashboard</div>
+        <div class="hr"></div>
+
+        <div class="statGrid">
+          <div class="mini">
+            <div class="ico">👤</div>
+            <div>
+              <div class="t">AUTHOR</div>
+              <div class="v" id="userNameBig">user</div>
+              <div class="muted" style="font-size:13px">Login Email</div>
+            </div>
+          </div>
+
+          <div class="mini">
+            <div class="ico">💳</div>
+            <div>
+              <div class="t">ACCOUNT BALANCE (MMK)</div>
+              <div class="v" id="balanceBig">0 Ks</div>
+              <div class="muted" style="font-size:13px">Available Balance</div>
+            </div>
+          </div>
+
+          <div class="mini">
+            <div class="ico">🧾</div>
+            <div>
+              <div class="t">YOUR ORDERS</div>
+              <div class="v" id="myOrdersCount">0</div>
+              <div class="muted" style="font-size:13px">Total Orders</div>
+            </div>
+          </div>
+
+          <div class="mini">
+            <div class="ico">🧩</div>
+            <div>
+              <div class="t">ACTIVE SERVICES</div>
+              <div class="v" id="svcCount">0</div>
+              <div class="muted" style="font-size:13px">Available</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="row">
+          <button class="btn" onclick="show('user-order')">🧾 New Order</button>
+          <button class="btn secondary" onclick="show('user-history')">🕘 Order History</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- USER: ORDER -->
+<main class="page view" id="view-user-order">
+  <div class="container">
+    <div class="panelCard">
+      <div class="panelInner">
+        <div class="h1Row">🚀 Services</div>
+        <div class="subtitle">Choose service, enter quantity and link</div>
+        <div class="hr"></div>
+
+        <div class="field">
+          <div class="label">Category</div>
+          <select class="input" id="orderCategory" style="padding-right:14px"></select>
+        </div>
+
+        <div class="field">
+          <div class="label">Service Type</div>
+          <select class="input" id="orderService" style="padding-right:14px"></select>
+        </div>
+
+        <div class="noteBox" id="orderNote">🟧 <b>Service Note</b><br/><span style="opacity:.85">Select a service to see notes...</span></div>
+
+        <div id="svcPreviewWrap" class="panelCard" style="box-shadow:none;border-radius:16px;border:1px solid rgba(0,0,0,.08);display:none">
+          <div class="panelInner" style="padding:12px">
+            <div class="sectionHdr" style="margin:0 0 8px">🖼️ Service Image</div>
+            <img id="svcPreviewImg" alt="service image" style="width:100%;border-radius:14px;border:1px solid rgba(0,0,0,.08)"/>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="label">Quantity</div>
+          <input class="input" id="orderQty" type="number" min="1" placeholder="Enter any quantity you want"/>
+          <div class="small" id="orderLimits">Min: - | Max: -</div>
+        </div>
+
+        <div class="field">
+          <div class="label">Cost (MMK)</div>
+          <input class="input" id="orderCost" readonly placeholder="Total cost will be calculated here"/>
+          <div class="small" id="orderRate">Rate: -</div>
+        </div>
+
+        <div class="field">
+          <div class="label">Link</div>
+          <input class="input" id="orderLink" placeholder="Enter link (e.g., https://example.com)"/>
+        </div>
+
+        <div class="field">
+          <div class="label">Average Time</div>
+          <input class="input" id="orderAvg" readonly placeholder="Delivery time will appear here"/>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottomAction">
+    <button class="actionBtn disabled" id="placeBtn" onclick="placeOrder()">⚠️ ENTER QUANTITY AND LINK</button>
+  </div>
+</main>
+
+<!-- USER: HISTORY -->
+<main class="page view" id="view-user-history">
+  <div class="container">
+    <div class="panelCard">
+      <div class="panelInner">
+        <div class="sectionHdr">🔎 Search</div>
+        <div class="row">
+          <div class="field" style="flex:2">
+            <div class="label">Order ID</div>
+            <input class="input" id="mySearchId" placeholder="Enter Order ID..."/>
+          </div>
+          <div class="field" style="flex:1">
+            <div class="label">Status</div>
+            <select class="input" id="mySearchStatus" style="padding-right:14px">
+              <option value="all">All</option>
+              <option value="pending">Pending</option>
+              <option value="completed">Completed</option>
+              <option value="failed">Failed</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+        </div>
+        <div class="row">
+          <button class="btn" onclick="renderMyOrders()">Search</button>
+          <button class="btn secondary" onclick="resetMyFilters()">Reset</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panelCard">
+      <div class="panelInner">
+        <div class="sectionHdr">📋 Your Orders</div>
+        <div class="muted" id="myOrdersTotal">Total: 0</div>
+        <div class="hr"></div>
+        <div id="myOrdersList"></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- USER: FUNDS -->
+<main class="page view" id="view-user-funds">
+  <div class="container">
+    <div class="panelCard">
+      <div class="panelInner">
+        <div class="sectionHdr">💸 Request Topup</div>
+
+        <div class="field">
+          <div class="label">Amount (MMK)</div>
+          <input class="input" id="topupMmk" type="number" min="1000" placeholder="Enter amount (e.g., 5000, 10000)"/>
+          <div class="small">MMK ပဲအသုံးပြုထားပါတယ် </div>
+        </div>
+
+        <div class="field">
+          <div class="label">Payment Method</div>
+          <select class="input" id="topupMethod" style="padding-right:14px">
+            <option value="kbz">KBZ Pay(09970573598(Chit Thae Oo))</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <div class="label">Payment ID (Last 5 digits)</div>
+          <input class="input" id="topupLast5" maxlength="5" inputmode="numeric" placeholder="Enter last 5 digits"/>
+        </div>
+
+        <button class="btn" onclick="submitTopup()">Now Request Topup</button>
+        <div class="small" style="margin-top:10px">Admin က approve လုပ်ပြီး balance ထည့်ပေးနိုင်ပါတယ်။</div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- ADMIN: DASHBOARD -->
+<main class="page view" id="view-admin-dashboard">
+  <div class="container">
+    <div class="panelCard">
+      <div class="panelInner">
+        <div class="h1Row">🛡️ Admin</div>
+        <div class="subtitle">Management Panel</div>
+        <div class="hr"></div>
+
+        <div class="statGrid">
+          <div class="mini">
+            <div class="ico">👥</div>
+            <div><div class="t">TOTAL USERS</div><div class="v" id="admTotalUsers">0</div></div>
+          </div>
+          <div class="mini">
+            <div class="ico">🧾</div>
+            <div><div class="t">TOTAL ORDERS</div><div class="v" id="admTotalOrders">0</div></div>
+          </div>
+          <div class="mini">
+            <div class="ico">🧩</div>
+            <div><div class="t">SERVICES</div><div class="v" id="admTotalServices">0</div></div>
+          </div>
+          <div class="mini">
+            <div class="ico">💰</div>
+            <div><div class="t">PENDING TOPUPS</div><div class="v" id="admPendingTopups">0</div></div>
+          </div>
+        </div>
+
+        <div class="hr"></div>
+        <div class="row">
+          <button class="btn" onclick="show('admin-users')">👥 User List</button>
+          <button class="btn secondary" onclick="show('admin-services')">🧩 Services</button>
+        </div>
+        <div class="row">
+          <button class="btn secondary" onclick="show('admin-orders')">🧾 Orders</button>
+          <button class="btn secondary" onclick="show('admin-funds')">💰 Funds</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- ADMIN: USERS -->
+<main class="page view" id="view-admin-users">
+  <div class="container">
+    <div class="panelCard">
+      <div class="panelInner">
+        <div class="sectionHdr">👥 User List</div>
+        <div class="muted" id="admUserTotal">Total: 0</div>
+        <div class="hr"></div>
+        <div style="overflow:auto">
+          <table>
+            <thead>
+              <tr>
+                <th>Email</th>
+                <th>Full Name</th>
+                <th>Balance (MMK)</th>
+                <th>Role</th>
+                <th>Actions</th>
+                <th>password</th>
+              </tr>
+            </thead>
+            <tbody id="admUserTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- ADMIN: SERVICES -->
+<main class="page view" id="view-admin-services">
+  <div class="container">
+    <div class="panelCard">
+      <div class="panelInner">
+        <div class="sectionHdr">➕ Add / Edit Service</div>
+
+        <div class="row">
+          <div class="field">
+            <div class="label">Category</div>
+            <input class="input" id="svcCat" placeholder="e.g., Web / Design / SEO"/>
+          </div>
+          <div class="field">
+            <div class="label">Service Name</div>
+            <input class="input" id="svcName" placeholder="Service title"/>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <div class="label">Price per 1000 (MMK)</div>
+            <input class="input" id="svcPrice" type="number" step="1" min="0" placeholder="7000"/>
+          </div>
+          <div class="field">
+            <div class="label">Average Time</div>
+            <input class="input" id="svcAvg" placeholder="e.g., 4-7 Hours"/>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <div class="label">Min</div>
+            <input class="input" id="svcMin" type="number" min="1" placeholder="50"/>
+          </div>
+          <div class="field">
+            <div class="label">Max</div>
+            <input class="input" id="svcMax" type="number" min="1" placeholder="50000"/>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="label">Service Note</div>
+          <input class="input" id="svcNote" placeholder="Service note..." style="padding-right:14px"/>
+        </div>
+
+        <div class="field">
+          <div class="label">Service Image</div>
+          <input class="input" id="svcImageFile" type="file" accept="image/*" style="padding-right:14px"/>
+          <div class="small" style="margin-top:6px">Upload image to Firebase Storage</div>
+        </div>
+
+        <input type="hidden" id="svcId"/>
+
+        <div class="row">
+          <button class="btn" onclick="saveService()">Save Service</button>
+          <button class="btn secondary" onclick="clearServiceForm()">Clear</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panelCard">
+      <div class="panelInner">
+        <div class="sectionHdr">📋 Service List</div>
+        <div class="muted" id="admSvcTotal">Total: 0</div>
+        <div class="hr"></div>
+
+        <div style="overflow:auto">
+          <table>
+            <thead>
+              <tr>
+                <th>Category</th>
+                <th>Service</th>
+                <th>Price/1000 (MMK)</th>
+                <th>Min-Max</th>
+                <th>Avg</th>
+                <th>Image</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="admSvcTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- ADMIN: ORDERS -->
+<main class="page view" id="view-admin-orders">
+  <div class="container">
+    <div class="panelCard">
+      <div class="panelInner">
+        <div class="sectionHdr">🧾 Orders</div>
+        <div class="row">
+          <input class="input" id="admOrderSearch" placeholder="Search order id / user email..." style="flex:2"/>
+          <select class="input" id="admOrderStatus" style="flex:1;padding-right:14px">
+            <option value="all">All</option>
+            <option value="pending">Pending</option>
+            <option value="completed">Completed</option>
+            <option value="failed">Failed</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+        <div class="row">
+          <button class="btn secondary" onclick="renderAdminOrders()">Search</button>
+          <button class="btn secondary" onclick="resetAdminOrderFilters()">Reset</button>
+        </div>
+
+        <div class="hr"></div>
+        <div class="muted" id="admOrderTotal">Total: 0</div>
+
+        <div style="overflow:auto">
+          <table>
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>User</th>
+                <th>Service</th>
+                <th>Qty</th>
+                <th>Cost (MMK)</th>
+                <th>Status</th>
+                <th>Update</th>
+              </tr>
+            </thead>
+            <tbody id="admOrderTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- ADMIN: FUNDS -->
+<main class="page view" id="view-admin-funds">
+  <div class="container">
+    <div class="panelCard">
+      <div class="panelInner">
+        <div class="sectionHdr">✅ Approve Topups</div>
+        <div class="muted" id="admTopupTotal">Pending: 0</div>
+        <div class="hr"></div>
+        <div id="admTopupList"></div>
+
+        <div class="hr"></div>
+
+        <div class="sectionHdr">➕ Manual Balance Adjust</div>
+        <div class="row">
+          <div class="field">
+            <div class="label">User Email</div>
+            <input class="input" id="admFundEmail" placeholder="user@email.com"/>
+          </div>
+          <div class="field">
+            <div class="label">Amount (MMK)</div>
+            <input class="input" id="admFundAmount" type="number" step="1" placeholder="5000"/>
+          </div>
+        </div>
+        <div class="row">
+          <button class="btn" onclick="adminAddFunds()">Add Funds</button>
+          <button class="btn danger" onclick="adminDeductFunds()">Deduct Funds</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div id="toast" class="toast">OK</div>
+
+<!-- Firebase (compat) -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+
+<script>
+/* =========================
+   IMPORTANT
+   =========================
+   MMK currency version (balance, prices, topups, orders all in MMK)
+*/
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBzwsoqbiB-i585iR4ICs_o0OrKj7t9tH8",
+  authDomain: "skboostmm.firebaseapp.com",
+  databaseURL: "https://skboostmm-default-rtdb.firebaseio.com",
+  projectId: "skboostmm",
+  storageBucket: "skboostmm.firebasestorage.app",
+  messagingSenderId: "669716945725",
+  appId: "1:669716945725:web:5f5f25cae6debfab538354",
+  measurementId: "G-P9WCFYWRFF"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.database();
+const storage = firebase.storage();
+
+const PATHS = {
+  users: "users",
+  services: "services",
+  orders: "orders",
+  topups: "topups"
+};
+
+// ---- utils
+function el(id){return document.getElementById(id)}
+function toast(msg){
+  const t = el("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(toast._t);
+  toast._t = setTimeout(()=>t.classList.remove("show"), 1400);
+}
+
+/* ✅ MMK formatter */
+function money(n){
+  const v = Math.round(Number(n||0));
+  return v.toLocaleString() + " Ks";
+}
+function escapeHtml(s){
+  return String(s ?? "")
+    .replaceAll("&","&amp;").replaceAll("<","&lt;")
+    .replaceAll(">","&gt;").replaceAll('"',"&quot;");
+}
+function statusBadge(st){
+  if(st==="completed") return `<span class="badge ok">Completed</span>`;
+  if(st==="failed") return `<span class="badge bad">Failed</span>`;
+  if(st==="cancelled") return `<span class="badge bad">Cancelled</span>`;
+  return `<span class="badge warn">Pending</span>`;
+}
+function genId(prefix){
+  const n = Math.floor(10000000 + Math.random()*90000000);
+  return (prefix||"") + String(n);
+}
+
+// ---- drawer
+const overlay = el("overlay");
+const drawer = el("drawer");
+const menuBtn = el("menuBtn");
+const avatarCircle = el("avatarCircle");
+const balanceText = el("balanceText");
+const rolePill = el("rolePill");
+const userMenu = el("userMenu");
+const adminMenu = el("adminMenu");
+
+function toggleDrawer(open=true){
+  overlay.classList.toggle("show", open);
+  drawer.classList.toggle("show", open);
+}
+function closeDrawer(){ toggleDrawer(false); }
+overlay.addEventListener("click", closeDrawer);
+menuBtn.addEventListener("click", ()=>toggleDrawer(true));
+
+drawer.addEventListener("click", (e)=>{
+  const item = e.target.closest(".drawerItem");
+  if(!item) return;
+  const nav = item.getAttribute("data-nav");
+  closeDrawer();
+  if(nav==="logout"){ auth.signOut(); return; }
+  if(views[nav]) show(nav);
+});
+
+// ---- views
+const views = {
+  login: el("view-login"),
+  register: el("view-register"),
+  "user-home": el("view-user-home"),
+  "user-order": el("view-user-order"),
+  "user-history": el("view-user-history"),
+  "user-funds": el("view-user-funds"),
+  "admin-dashboard": el("view-admin-dashboard"),
+  "admin-users": el("view-admin-users"),
+  "admin-services": el("view-admin-services"),
+  "admin-orders": el("view-admin-orders"),
+  "admin-funds": el("view-admin-funds"),
+};
+function show(key){
+  Object.values(views).forEach(v=>v.classList.remove("active"));
+  views[key].classList.add("active");
+  location.hash = "#"+key;
+}
+
+// ---- auth UI helpers
+function setHeaderForUser(userEmail, balance, role){
+  const letter = (userEmail || "U")[0].toUpperCase();
+  avatarCircle.textContent = letter;
+  avatarCircle.style.display = "grid";
+  menuBtn.style.display = "flex";
+  balanceText.textContent = money(balance||0);
+  rolePill.textContent = role === "admin" ? "ADMIN" : "USER";
+  userMenu.style.display = role === "admin" ? "none":"block";
+  adminMenu.style.display = role === "admin" ? "block":"none";
+
+  el("userNameBig").textContent = userEmail;
+  el("balanceBig").textContent = money(balance||0);
+}
+function hideHeaderForAuth(){
+  avatarCircle.style.display = "none";
+  menuBtn.style.display = "none";
+  balanceText.textContent = money(0);
+}
+
+// ---- db helpers
+async function rtdbGet(path){
+  const snap = await db.ref(path).get();
+  return snap.exists()? snap.val(): null;
+}
+async function rtdbSet(path, val){ await db.ref(path).set(val); }
+async function rtdbUpdate(path, val){ await db.ref(path).update(val); }
+async function rtdbRemove(path){ await db.ref(path).remove(); }
+
+// ---- seed (services) on first run (MMK prices)
+async function seedServicesIfEmpty(){
+  const sv = await rtdbGet(PATHS.services);
+  if(sv) return;
+  const seed = {};
+  const s1 = genId("S");
+  const s2 = genId("S");
+  const s3 = genId("S");
+
+  // Original USD -> MMK (x3500) already converted:
+  seed[s1] = { id:s1, cat:"Web",     name:"Landing Page Design", pricePer1000:7000, avg:"2-3 Days",  min:1, max:10, note:"Provide your content and brand colors.", imageUrl:null, updatedAt:Date.now() };
+  seed[s2] = { id:s2, cat:"Content", name:"Article Writing",     pricePer1000:525,  avg:"24 Hours",  min:1, max:50, note:"Topic + word count required.", imageUrl:null, updatedAt:Date.now() };
+  seed[s3] = { id:s3, cat:"SEO",     name:"Basic On-page SEO",   pricePer1000:2100, avg:"1-2 Days",  min:1, max:20, note:"Website access required.", imageUrl:null, updatedAt:Date.now() };
+
+  await rtdbSet(PATHS.services, seed);
+}
+
+// ---- password toggles
+function bindToggle(btnId, inputId){
+  const btn = el(btnId), input = el(inputId);
+  btn.addEventListener("click", ()=>{
+    const p = input.type === "password";
+    input.type = p ? "text" : "password";
+    btn.textContent = p ? "Hide" : "Show";
+  });
+}
+bindToggle("loginToggle","loginPass");
+bindToggle("regToggle1","regPass");
+bindToggle("regToggle2","regConfirm");
+
+// ---- register
+el("registerForm").addEventListener("submit", async (e)=>{
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const fullname = String(fd.get("fullname")||"").trim();
+  const email = String(fd.get("email")||"").trim();
+  const pass = String(fd.get("password")||"");
+  const conf = String(fd.get("confirm_password")||"");
+  if(!fullname||!email) return toast("Fill all fields");
+  if(pass.length<6) return toast("Password min 6");
+  if(pass!==conf) return toast("Passwords not match");
+  try{
+    const cred = await auth.createUserWithEmailAndPassword(email, pass);
+    await rtdbSet(`${PATHS.users}/${cred.user.uid}`, {
+      uid: cred.user.uid,
+      email,
+      fullname,
+      role: "user",
+      balance: 0, // MMK
+      createdAt: Date.now()
+    });
+    toast("Account created");
+    show("user-home");
+  }catch(err){
+    toast(err.message || "Register error");
+  }
+});
+
+// ---- login
+el("loginForm").addEventListener("submit", async (e)=>{
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const email = String(fd.get("email")||"").trim();
+  const pass = String(fd.get("password")||"");
+  try{
+    await auth.signInWithEmailAndPassword(email, pass);
+  }catch(err){
+    toast(err.message || "Login error");
+  }
+});
+
+// ---- auth state
+auth.onAuthStateChanged(async (user)=>{
+  if(!user){
+    hideHeaderForAuth();
+    show("login");
+    return;
+  }
+
+  await seedServicesIfEmpty();
+
+  const profile = await rtdbGet(`${PATHS.users}/${user.uid}`);
+  const role = profile?.role || "user";
+  const balance = profile?.balance || 0;
+
+  setHeaderForUser(profile?.email || user.email, balance, role);
+
+  toast("Login success");
+  if(role==="admin"){
+    show("admin-dashboard");
+    await refreshAdminAll();
+  }else{
+    show("user-home");
+    await refreshUserAll();
+  }
+});
+
+// =========================
+// USER FLOW
+// =========================
+let currentService = null;
+
+const orderCategory = el("orderCategory");
+const orderService  = el("orderService");
+const orderNote     = el("orderNote");
+const orderQty      = el("orderQty");
+const orderCost     = el("orderCost");
+const orderLink     = el("orderLink");
+const orderAvg      = el("orderAvg");
+const orderLimits   = el("orderLimits");
+const orderRate     = el("orderRate");
+const placeBtn      = el("placeBtn");
+
+async function getServicesArray(){
+  const obj = await rtdbGet(PATHS.services) || {};
+  return Object.values(obj);
+}
+async function refreshOrderForm(){
+  const sv = await getServicesArray();
+  el("svcCount").textContent = sv.length;
+
+  const cats = [...new Set(sv.map(s=>s.cat))].sort((a,b)=>a.localeCompare(b));
+  orderCategory.innerHTML = cats.map(c=>`<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join("");
+  if(!cats.length){
+    orderCategory.innerHTML = `<option value="">No category</option>`;
+    orderService.innerHTML = `<option value="">No service</option>`;
+    return;
+  }
+  orderCategory.value = cats[0];
+  await fillServicesByCat(cats[0]);
+}
+
+async function fillServicesByCat(cat){
+  const sv = (await getServicesArray()).filter(s=>s.cat===cat);
+  orderService.innerHTML = sv.map(s=>`<option value="${s.id}">${escapeHtml(s.name)} - ${money(s.pricePer1000)} /1000</option>`).join("");
+  if(sv.length){
+    orderService.value = sv[0].id;
+    selectServiceById(sv[0].id, sv);
+  }else{
+    currentService=null; resetOrderUi();
+  }
+}
+
+function selectServiceById(id, list){
+  const sv = list || [];
+  currentService = sv.find(x=>x.id===id) || null;
+  if(!currentService) return resetOrderUi();
+
+  orderNote.innerHTML = `🟧 <b>Service Note</b><br/><span style="opacity:.85">${escapeHtml(currentService.note||"-")}</span>`;
+  orderAvg.value = currentService.avg || "-";
+  orderLimits.textContent = `Min: ${currentService.min} | Max: ${currentService.max}`;
+
+  const unitRate = (Number(currentService.pricePer1000)||0)/1000; // MMK per unit
+  orderRate.textContent = `Rate: ${Math.round(unitRate).toLocaleString()} Ks / unit`;
+
+  orderQty.value=""; orderCost.value=""; orderLink.value="";
+  updatePlaceBtn();
+
+  const wrap = el("svcPreviewWrap");
+  const img = el("svcPreviewImg");
+  if(currentService.imageUrl){
+    img.src = currentService.imageUrl;
+    wrap.style.display = "block";
+  }else{
+    wrap.style.display = "none";
+  }
+}
+
+function resetOrderUi(){
+  orderNote.innerHTML = `🟧 <b>Service Note</b><br/><span style="opacity:.85">Select a service to see notes...</span>`;
+  orderAvg.value=""; orderLimits.textContent="Min: - | Max: -"; orderRate.textContent="Rate: -";
+  orderQty.value=""; orderCost.value=""; orderLink.value="";
+  el("svcPreviewWrap").style.display="none";
+  updatePlaceBtn();
+}
+
+orderCategory.addEventListener("change", async ()=>{
+  await fillServicesByCat(orderCategory.value);
+});
+orderService.addEventListener("change", async ()=>{
+  const sv = await getServicesArray();
+  selectServiceById(orderService.value, sv);
+});
+orderQty.addEventListener("input", ()=>{
+  if(!currentService) return;
+  const q = Number(orderQty.value||0);
+  const unitRate = (Number(currentService.pricePer1000)||0)/1000;
+  orderCost.value = q ? money(q*unitRate) : "";
+  updatePlaceBtn();
+});
+orderLink.addEventListener("input", updatePlaceBtn);
+
+function updatePlaceBtn(){
+  const q = Number(orderQty.value||0);
+  const l = String(orderLink.value||"").trim();
+  const okService = !!currentService;
+  let okQty = false;
+  if(okService && q){
+    okQty = (q >= Number(currentService.min) && q <= Number(currentService.max));
+  }
+  const enabled = okService && okQty && !!l;
+  placeBtn.classList.toggle("enabled", enabled);
+  placeBtn.classList.toggle("disabled", !enabled);
+  placeBtn.textContent = enabled ? "✅ PLACE ORDER" : "⚠️ ENTER QUANTITY AND LINK";
+}
+
+async function placeOrder(){
+  const user = auth.currentUser;
+  if(!user) return toast("Login first");
+  if(!currentService) return toast("Select service");
+
+  const qty = Number(orderQty.value||0);
+  const link = String(orderLink.value||"").trim();
+  if(!qty || qty < currentService.min || qty > currentService.max) return toast("Quantity invalid");
+  if(!link) return toast("Enter link");
+
+  const prof = await rtdbGet(`${PATHS.users}/${user.uid}`);
+  const unitRate = (Number(currentService.pricePer1000)||0)/1000;
+  const cost = Math.round(qty*unitRate); // MMK integer
+  if((prof.balance||0) < cost) return toast("Not enough balance");
+
+  await rtdbUpdate(`${PATHS.users}/${user.uid}`, { balance: Math.max(0, Math.round((prof.balance||0) - cost)) });
+
+  const id = genId("O");
+  await rtdbSet(`${PATHS.orders}/${id}`, {
+    id,
+    uid: user.uid,
+    email: prof.email,
+    serviceId: currentService.id,
+    serviceName: currentService.name,
+    category: currentService.cat,
+    qty,
+    cost, // MMK
+    link,
+    status:"pending",
+    createdAt: Date.now()
+  });
+
+  toast("Order placed");
+  await refreshUserAll();
+  show("user-history");
+}
+window.placeOrder = placeOrder;
+
+function resetMyFilters(){
+  el("mySearchId").value="";
+  el("mySearchStatus").value="all";
+  renderMyOrders();
+}
+window.resetMyFilters = resetMyFilters;
+
+async function renderMyOrders(){
+  const user = auth.currentUser;
+  if(!user) return;
+  const all = await rtdbGet(PATHS.orders) || {};
+  let arr = Object.values(all).filter(o=>o.uid===user.uid).sort((a,b)=>b.createdAt-a.createdAt);
+
+  const q = String(el("mySearchId").value||"").trim();
+  const st = el("mySearchStatus").value;
+  if(q) arr = arr.filter(o=>String(o.id).includes(q));
+  if(st!=="all") arr = arr.filter(o=>o.status===st);
+
+  el("myOrdersTotal").textContent = "Total: " + arr.length;
+  el("myOrdersCount").textContent = Object.values(all).filter(o=>o.uid===user.uid).length;
+
+  const wrap = el("myOrdersList");
+  if(!arr.length){ wrap.innerHTML = `<div class="muted">No orders</div>`; return; }
+
+  wrap.innerHTML = arr.map(o=>{
+    const dt = new Date(o.createdAt).toLocaleString();
+    return `
+      <div class="panelCard" style="box-shadow:none;border-radius:16px;margin-top:10px;border:1px solid rgba(0,0,0,.08)">
+        <div class="panelInner" style="padding:12px 12px">
+          <div style="display:flex;justify-content:space-between;gap:10px;align-items:center">
+            <div style="font-weight:1000">Order #${escapeHtml(o.id)}</div>
+            ${statusBadge(o.status)}
+          </div>
+          <div class="muted" style="margin-top:6px">${escapeHtml(o.category)} • ${escapeHtml(o.serviceName)}</div>
+          <div style="display:flex;justify-content:space-between;gap:10px;margin-top:6px">
+            <div class="muted">Qty: ${o.qty}</div>
+            <div style="font-weight:1000">${money(o.cost)}</div>
+          </div>
+          <div class="muted" style="font-size:13px;margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+            Link: ${escapeHtml(o.link)}
+          </div>
+          <div class="muted" style="font-size:13px;margin-top:6px">Date: ${dt}</div>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+window.renderMyOrders = renderMyOrders;
+
+// topup request (MMK)
+async function submitTopup(){
+  const user = auth.currentUser;
+  if(!user) return toast("Login first");
+  const mmk = Math.round(Number(el("topupMmk").value||0));
+  const method = el("topupMethod").value;
+  const last5 = String(el("topupLast5").value||"").trim();
+  if(!mmk || mmk<=0) return toast("Enter MMK");
+  if(!/^\d{5}$/.test(last5)) return toast("Enter last 5 digits");
+
+  const prof = await rtdbGet(`${PATHS.users}/${user.uid}`);
+  const id = genId("T");
+  await rtdbSet(`${PATHS.topups}/${id}`, {
+    id,
+    uid:user.uid,
+    email: prof.email,
+    mmk,
+    method,
+    last5,
+    status:"pending",
+    createdAt: Date.now()
+  });
+
+  el("topupMmk").value=""; el("topupLast5").value="";
+  toast("Topup request sent");
+}
+window.submitTopup = submitTopup;
+
+async function refreshUserAll(){
+  const user = auth.currentUser;
+  if(!user) return;
+  const prof = await rtdbGet(`${PATHS.users}/${user.uid}`);
+  setHeaderForUser(prof.email, prof.balance||0, prof.role||"user");
+  await refreshOrderForm();
+  await renderMyOrders();
+}
+
+// =========================
+// ADMIN FLOW
+// =========================
+function isAdmin(profile){ return profile?.role === "admin"; }
+
+async function refreshAdminAll(){
+  await renderAdminDashboard();
+  await renderAdminUsers();
+  await renderAdminServices();
+  await renderAdminOrders();
+  await renderAdminTopups();
+}
+
+async function renderAdminDashboard(){
+  const users = await rtdbGet(PATHS.users) || {};
+  const orders = await rtdbGet(PATHS.orders) || {};
+  const services = await rtdbGet(PATHS.services) || {};
+  const topups = await rtdbGet(PATHS.topups) || {};
+  el("admTotalUsers").textContent = Object.keys(users).length;
+  el("admTotalOrders").textContent = Object.keys(orders).length;
+  el("admTotalServices").textContent = Object.keys(services).length;
+  el("admPendingTopups").textContent = Object.values(topups).filter(t=>t.status==="pending").length;
+}
+
+async function renderAdminUsers(){
+  const users = await rtdbGet(PATHS.users) || {};
+  const arr = Object.values(users).sort((a,b)=>(a.createdAt||0)-(b.createdAt||0));
+  el("admUserTotal").textContent = "Total: " + arr.length;
+
+  el("admUserTbody").innerHTML = arr.map(u=>`
+    <tr>
+      <td>${escapeHtml(u.email||"-")}</td>
+      <td>${escapeHtml(u.fullname||"-")}</td>
+      <td>${money(u.balance||0)}</td>
+      <td><span class="badge">${escapeHtml(u.role||"user")}</span></td>
+      <td>
+        <button class="btn secondary" style="padding:10px 10px;font-size:14px" onclick="promoteUser('${u.uid}','admin')">Make Admin</button>
+        <button class="btn danger" style="padding:10px 10px;font-size:14px;margin-top:6px" onclick="promoteUser('${u.uid}','user')">Make User</button>
+      </td>
+    </tr>
+  `).join("") || `<tr><td colspan="5" class="muted">No users</td></tr>`;
+}
+window.promoteUser = async function(uid, role){
+  await rtdbUpdate(`${PATHS.users}/${uid}`, { role });
+  toast("Role updated");
+  await refreshAdminAll();
+};
+
+/* ✅ Improved upload: validate + safer filename + error throw */
+async function uploadServiceImage(file, serviceId){
+  const maxMB = 3;
+  const sizeMB = file.size / (1024*1024);
+  if(sizeMB > maxMB) throw new Error(`Image too large (max ${maxMB}MB)`);
+
+  const typeOk = /^image\/(png|jpeg|jpg|webp)$/i.test(file.type);
+  if(!typeOk) throw new Error("Only PNG/JPG/WEBP images allowed");
+
+  const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+  const safeExt = ["png","jpg","jpeg","webp"].includes(ext) ? ext : "jpg";
+  const path = `service_images/${serviceId}_${Date.now()}.${safeExt}`;
+
+  const ref = storage.ref().child(path);
+  await ref.put(file);
+  return await ref.getDownloadURL();
+}
+
+window.clearServiceForm = function(){
+  el("svcId").value="";
+  el("svcCat").value="";
+  el("svcName").value="";
+  el("svcPrice").value="";
+  el("svcAvg").value="";
+  el("svcMin").value="";
+  el("svcMax").value="";
+  el("svcNote").value="";
+  el("svcImageFile").value="";
+};
+
+window.saveService = async function(){
+  const user = auth.currentUser;
+  if(!user) return toast("Login first");
+  const prof = await rtdbGet(`${PATHS.users}/${user.uid}`);
+  if(!isAdmin(prof)) return toast("Admin only");
+
+  const id = (el("svcId").value||"").trim() || genId("S");
+  const cat = el("svcCat").value.trim();
+  const name = el("svcName").value.trim();
+  const pricePer1000 = Math.round(Number(el("svcPrice").value||0)); // MMK
+  const avg = el("svcAvg").value.trim();
+  const min = Number(el("svcMin").value||0);
+  const max = Number(el("svcMax").value||0);
+  const note = el("svcNote").value.trim();
+  if(!cat || !name) return toast("Fill category & name");
+  if(pricePer1000 < 0) return toast("Price invalid");
+  if(min<=0 || max<=0 || max<min) return toast("Min/Max invalid");
+
+  const existing = await rtdbGet(`${PATHS.services}/${id}`);
+  let imageUrl = existing?.imageUrl || null;
+
+  const f = el("svcImageFile")?.files?.[0];
+  if(f){
+    const btns = Array.from(document.querySelectorAll("button"));
+    btns.forEach(b => b.disabled = true);
+
+    try{
+      toast("Uploading image...");
+      imageUrl = await uploadServiceImage(f, id);
+      toast("Image uploaded");
+    }catch(err){
+      toast(err.message || "Image upload failed");
+      btns.forEach(b => b.disabled = false);
+      return;
+    }
+    btns.forEach(b => b.disabled = false);
+  }
+
+  await rtdbSet(`${PATHS.services}/${id}`, {
+    id, cat, name, pricePer1000, avg, min, max, note, imageUrl,
+    updatedAt: Date.now()
+  });
+
+  toast("Service saved");
+  clearServiceForm();
+  await refreshAdminAll();
+  await refreshOrderForm();
+};
+
+window.editService = async function(id){
+  const s = await rtdbGet(`${PATHS.services}/${id}`);
+  if(!s) return;
+  el("svcId").value = s.id;
+  el("svcCat").value = s.cat;
+  el("svcName").value = s.name;
+  el("svcPrice").value = s.pricePer1000;
+  el("svcAvg").value = s.avg;
+  el("svcMin").value = s.min;
+  el("svcMax").value = s.max;
+  el("svcNote").value = s.note;
+  toast("Loaded service");
+};
+
+window.deleteService = async function(id){
+  if(!confirm("Delete service?")) return;
+  await rtdbRemove(`${PATHS.services}/${id}`);
+  toast("Service deleted");
+  await refreshAdminAll();
+  await refreshOrderForm();
+};
+
+async function renderAdminServices(){
+  const obj = await rtdbGet(PATHS.services) || {};
+  const arr = Object.values(obj).sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));
+  el("admSvcTotal").textContent = "Total: " + arr.length;
+
+  el("admSvcTbody").innerHTML = arr.map(s=>`
+    <tr>
+      <td>${escapeHtml(s.cat)}</td>
+      <td>
+        <div style="font-weight:1000">${escapeHtml(s.name)}</div>
+        <div class="muted" style="font-size:12px;margin-top:4px">Note: ${escapeHtml(s.note||"-")}</div>
+      </td>
+      <td>${money(s.pricePer1000||0)}</td>
+      <td class="muted">${s.min} - ${s.max}</td>
+      <td class="muted">${escapeHtml(s.avg||"-")}</td>
+      <td>${s.imageUrl ? `<a class="link" href="${s.imageUrl}" target="_blank">View</a>` : `<span class="muted">-</span>`}</td>
+      <td>
+        <button class="btn secondary" style="padding:10px 10px;font-size:14px" onclick="editService('${s.id}')">Edit</button>
+        <button class="btn danger" style="padding:10px 10px;font-size:14px;margin-top:6px" onclick="deleteService('${s.id}')">Delete</button>
+      </td>
+    </tr>
+  `).join("") || `<tr><td colspan="7" class="muted">No services</td></tr>`;
+}
+
+async function renderAdminOrders(){
+  const q = String(el("admOrderSearch").value||"").trim().toLowerCase();
+  const st = el("admOrderStatus").value;
+  const all = await rtdbGet(PATHS.orders) || {};
+  let arr = Object.values(all).sort((a,b)=>b.createdAt-a.createdAt);
+
+  if(q){
+    arr = arr.filter(o =>
+      String(o.id).toLowerCase().includes(q) ||
+      String(o.email||"").toLowerCase().includes(q)
+    );
+  }
+  if(st!=="all") arr = arr.filter(o=>o.status===st);
+
+  el("admOrderTotal").textContent = "Total: " + arr.length;
+
+  el("admOrderTbody").innerHTML = arr.map(o=>`
+    <tr>
+      <td>${escapeHtml(o.id)}</td>
+      <td>${escapeHtml(o.email||"-")}</td>
+      <td>
+        <div style="font-weight:1000">${escapeHtml(o.category)} • ${escapeHtml(o.serviceName)}</div>
+        <div class="muted" style="font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Link: ${escapeHtml(o.link)}</div>
+      </td>
+      <td class="muted">${o.qty}</td>
+      <td>${money(o.cost)}</td>
+      <td>${statusBadge(o.status)}</td>
+      <td>
+        <select class="input" style="padding-right:14px" onchange="adminUpdateOrderStatus('${o.id}', this.value)">
+          <option value="pending" ${o.status==="pending"?"selected":""}>Pending</option>
+          <option value="completed" ${o.status==="completed"?"selected":""}>Completed</option>
+          <option value="failed" ${o.status==="failed"?"selected":""}>Failed</option>
+          <option value="cancelled" ${o.status==="cancelled"?"selected":""}>Cancelled</option>
+        </select>
+      </td>
+    </tr>
+  `).join("") || `<tr><td colspan="7" class="muted">No orders</td></tr>`;
+}
+window.adminUpdateOrderStatus = async function(id, status){
+  await rtdbUpdate(`${PATHS.orders}/${id}`, { status });
+  toast("Order updated");
+  await renderAdminOrders();
+};
+
+window.resetAdminOrderFilters = function(){
+  el("admOrderSearch").value="";
+  el("admOrderStatus").value="all";
+  renderAdminOrders();
+};
+
+async function renderAdminTopups(){
+  const all = await rtdbGet(PATHS.topups) || {};
+  const pending = Object.values(all).filter(t=>t.status==="pending").sort((a,b)=>b.createdAt-a.createdAt);
+  el("admTopupTotal").textContent = "Pending: " + pending.length;
+
+  const wrap = el("admTopupList");
+  if(!pending.length){
+    wrap.innerHTML = `<div class="muted">No pending topups</div>`;
+    return;
+  }
+  wrap.innerHTML = pending.map(t=>{
+    const dt = new Date(t.createdAt).toLocaleString();
+    return `
+      <div class="panelCard" style="box-shadow:none;border-radius:16px;margin-top:10px;border:1px solid rgba(0,0,0,.08)">
+        <div class="panelInner" style="padding:12px 12px">
+          <div style="display:flex;justify-content:space-between;gap:10px;align-items:center">
+            <div style="font-weight:1000">Topup #${escapeHtml(t.id)}</div>
+            <span class="badge warn">Pending</span>
+          </div>
+          <div class="muted" style="margin-top:6px">User: <b>${escapeHtml(t.email)}</b></div>
+          <div class="muted" style="margin-top:6px">MMK: <b>${money(t.mmk)}</b></div>
+          <div class="muted" style="margin-top:6px">Method: <b>${escapeHtml(t.method)}</b> • Last5: <b>${escapeHtml(t.last5)}</b></div>
+          <div class="muted" style="font-size:12px;margin-top:6px">Date: ${dt}</div>
+          <div class="row" style="margin-top:10px">
+            <button class="btn" style="padding:12px 12px;font-size:14px" onclick="approveTopup('${t.id}')">Approve & Add Balance</button>
+            <button class="btn danger" style="padding:12px 12px;font-size:14px" onclick="rejectTopup('${t.id}')">Reject</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+window.approveTopup = async function(id){
+  const t = await rtdbGet(`${PATHS.topups}/${id}`);
+  if(!t || t.status!=="pending") return;
+  const u = await rtdbGet(`${PATHS.users}/${t.uid}`);
+  if(!u) return toast("User not found");
+
+  const newBal = Math.round((u.balance||0) + (t.mmk||0));
+  await rtdbUpdate(`${PATHS.users}/${t.uid}`, { balance:newBal });
+  await rtdbUpdate(`${PATHS.topups}/${id}`, { status:"approved" });
+
+  toast("Topup approved");
+  await refreshAdminAll();
+};
+window.rejectTopup = async function(id){
+  await rtdbUpdate(`${PATHS.topups}/${id}`, { status:"rejected" });
+  toast("Topup rejected");
+  await refreshAdminAll();
+};
+
+window.adminAddFunds = async function(){
+  const email = String(el("admFundEmail").value||"").trim().toLowerCase();
+  const amt = Math.round(Number(el("admFundAmount").value||0));
+  if(!email || !amt) return toast("Enter email & amount");
+
+  const users = await rtdbGet(PATHS.users) || {};
+  const target = Object.values(users).find(u=>(u.email||"").toLowerCase()===email);
+  if(!target) return toast("User not found");
+
+  const newBal = Math.round((target.balance||0) + amt);
+  await rtdbUpdate(`${PATHS.users}/${target.uid}`, { balance:newBal });
+
+  toast("Funds added");
+  await refreshAdminAll();
+};
+
+window.adminDeductFunds = async function(){
+  const email = String(el("admFundEmail").value||"").trim().toLowerCase();
+  const amt = Math.round(Number(el("admFundAmount").value||0));
+  if(!email || !amt) return toast("Enter email & amount");
+
+  const users = await rtdbGet(PATHS.users) || {};
+  const target = Object.values(users).find(u=>(u.email||"").toLowerCase()===email);
+  if(!target) return toast("User not found");
+
+  let newBal = Math.round((target.balance||0) - amt);
+  if(newBal<0) newBal=0;
+  await rtdbUpdate(`${PATHS.users}/${target.uid}`, { balance:newBal });
+
+  toast("Funds deducted");
+  await refreshAdminAll();
+};
+
+// ---- navigation fix: when user switches views, refresh data if needed
+const originalShow = show;
+show = async function(key){
+  originalShow(key);
+  const user = auth.currentUser;
+  if(!user) return;
+  const prof = await rtdbGet(`${PATHS.users}/${user.uid}`);
+  if(prof?.role==="admin"){
+    if(key.startsWith("admin-")) await refreshAdminAll();
+  }else{
+    if(key.startsWith("user-")) await refreshUserAll();
+  }
+};
+window.show = show;
+
+// init hash
+(function init(){
+  hideHeaderForAuth();
+  const hash = location.hash.replace("#","");
+  if(hash && views[hash]) show(hash);
+})();
+</script>
+
+</body>
+</html> 
